@@ -31,6 +31,11 @@ pub trait Transcodeable: Sized {
     }
 }
 
+pub trait SizeTranscodable: Transcodeable {
+    fn encode_usize<B: BufMut>(num: usize, buf: B) -> Result<(), EncodeError>;
+    fn decode_usize<B: Buf>(buf: B) -> Result<usize, DecodeError>;
+}
+
 impl Transcodeable for bool {
     fn encode<B: BufMut>(&self, mut buf: B) -> Result<(), EncodeError> {
         buf.put_u8(if *self { 0x01 } else { 0x00 });
@@ -72,6 +77,16 @@ macro_rules! impl_int {
 
                 fn size_hint(&self) -> Option<usize> {
                     Some(std::mem::size_of::<$type>())
+                }
+            }
+
+            impl SizeTranscodable for $type {
+                fn encode_usize<B: BufMut>(num: usize, buf: B) -> Result<(), EncodeError> {
+                    (num as $type).encode(buf)
+                }
+
+                fn decode_usize<B: Buf>(buf: B) -> Result<usize, DecodeError> {
+                    Ok($type::decode(buf)? as usize)
                 }
             }
         )*

@@ -1,3 +1,5 @@
+pub mod login;
+pub mod play;
 pub mod status;
 
 use crate::codec::{DecodeError, EncodeError, Packet, Transcodeable};

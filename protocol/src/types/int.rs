@@ -1,4 +1,4 @@
-use crate::codec::{DecodeError, EncodeError, Transcodeable};
+use crate::codec::{DecodeError, EncodeError, SizeTranscodable, Transcodeable};
 use bytes::{Buf, BufMut};
 use std::fmt::{Debug, Formatter};
 use std::ops::{Deref, DerefMut, Div};
@@ -78,6 +78,16 @@ impl Transcodeable for VarInt {
     }
 }
 
+impl SizeTranscodable for VarInt {
+    fn encode_usize<B: BufMut>(num: usize, buf: B) -> Result<(), EncodeError> {
+        VarInt(num as i32).encode(buf)
+    }
+
+    fn decode_usize<B: Buf>(buf: B) -> Result<usize, DecodeError> {
+        Ok(VarInt::decode(buf)?.0 as usize)
+    }
+}
+
 impl Transcodeable for VarLong {
     fn encode<B: BufMut>(&self, buf: B) -> Result<(), EncodeError> {
         encode_leb128(self.0 as u64, buf)
@@ -94,6 +104,16 @@ impl Transcodeable for VarLong {
             0 => bytes,
             _ => bytes + 1,
         })
+    }
+}
+
+impl SizeTranscodable for VarLong {
+    fn encode_usize<B: BufMut>(num: usize, buf: B) -> Result<(), EncodeError> {
+        VarLong(num as i64).encode(buf)
+    }
+
+    fn decode_usize<B: Buf>(buf: B) -> Result<usize, DecodeError> {
+        Ok(VarLong::decode(buf)?.0 as usize)
     }
 }
 

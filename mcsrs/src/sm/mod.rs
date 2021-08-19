@@ -4,6 +4,7 @@ use protocol::codec::Transcodeable;
 use protocol::packets::{self, encode};
 use protocol::types::{Chat, ChatObj};
 use tracing::*;
+use uuid::Uuid;
 
 pub mod encryption;
 
@@ -21,7 +22,7 @@ macro_rules! receive {
 }
 
 macro_rules! respond {
-    ($self:ident $(<< $val:expr)*) => {
+    ($self:ident $(<- $val:expr $(;)?)*) => {
         $($self
             .send_queue
             .send(protocol::packets::encode($val).expect("TODO: ADD GENERAL ERROR HANDLING!"))
@@ -41,6 +42,7 @@ enum State {
     Init,
     Status(u8),
     Login(u8),
+    Play,
 }
 
 impl StateMachine {
@@ -68,7 +70,9 @@ impl StateMachine {
             State::Status(0) => self.status0(packet)?,
             State::Status(1) => self.status1(packet)?,
             State::Status(_) => unreachable!(),
+            State::Login(0) => self.login0(packet)?,
             State::Login(_) => todo!(),
+            State::Play => {}
         }
 
         Ok(())
@@ -104,7 +108,7 @@ impl StateMachine {
         // StatusRequest is Zero Sized, this will only act as gate
         receive!(packet => StatusRequest);
         respond!(
-            self << StatusResponse(Response {
+            self <- StatusResponse(Response {
                 version: Version {
                     name: protocol::MC_VERSION.to_string(),
                     protocol: protocol::VERSION,
@@ -116,20 +120,9 @@ impl StateMachine {
                 },
                 description: Chat::Obj(ChatObj {
                     text: Some("MCSRS!".to_string()),
-                    translate: None,
-                    score: None,
-                    keybind: None,
-                    selector: None,
                     bold: Some(true),
-                    italic: None,
-                    underlined: None,
-                    strikethrough: None,
-                    obfuscated: None,
                     color: Some("gold".to_string()),
-                    insertion: None,
-                    click_event: None,
-                    hover_event: None,
-                    extra: None,
+                    ..Default::default()
                 }),
                 favicon: None,
             })
@@ -146,7 +139,25 @@ impl StateMachine {
         use packets::status::{clientbound::StatusPong, serverbound::StatusPing};
 
         let pkt = receive!(packet => StatusPing);
-        respond!(self << StatusPong(pkt.0));
+        respond!(self <- StatusPong(pkt.0));
+
+        Ok(())
+    }
+
+    fn login0(&mut self, packet: Bytes) -> Result<(), DecodeError> {
+        use protocol::packets::login::{clientbound::LoginSuccess, serverbound::LoginStart};
+        use protocol::types::VarInt;
+
+        let LoginStart(player) = receive!(packet => LoginStart);
+        info!("{} joined the game", &player.0);
+        respond!(
+            self <- LoginSuccess {
+                username: player,
+                uuid: Uuid::nil(),
+            }
+        );
+
+        self.state = State::Play;
 
         Ok(())
     }

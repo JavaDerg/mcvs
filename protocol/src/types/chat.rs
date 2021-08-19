@@ -18,7 +18,7 @@ pub enum Prim {
 }
 
 #[serde_with::skip_serializing_none]
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Default, Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatObj {
     pub text: Option<String>,

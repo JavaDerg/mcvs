@@ -18,7 +18,7 @@ pub async fn handle_client(stream: TcpStream) {
         async move {
             debug!("spawned new write task");
             while let Some(mut packet) = srx.recv().await {
-                debug!("received packet; pkt={:?}", &packet);
+                debug!("sending packet; pkt={:?}", &packet);
                 loop {
                     match write.write_buf(&mut packet).await {
                         Ok(0) => return Ok(()),
