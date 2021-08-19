@@ -1,0 +1,2 @@
+[workspace]
+members = ["mcsrs", "protocol", "protocol_derive"]

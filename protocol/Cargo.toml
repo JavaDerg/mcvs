@@ -1,0 +1,16 @@
+[package]
+name = "protocol"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+bytes = "1.0.1"
+flate2 = "1.0.20"
+lazy_static = "1.4.0"
+protocol_derive = { path = "../protocol_derive" }
+tracing = "0.1.26"
+tracing-futures = "0.2.5"
+serde = { version = "1.0.127", features = ["derive"] }
+serde_with = "1.9.4"
+simd-json = { version = "0.4.7", features = ["allow-non-simd"] }
+uuid = { version = "0.8.2", features = ["serde"] }
