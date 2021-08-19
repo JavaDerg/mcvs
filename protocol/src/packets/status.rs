@@ -7,15 +7,14 @@ pub mod clientbound {
 
     #[packet(id = 0x01)]
     #[derive(Debug)]
-    pub struct StatusPong {
-        payload: i64,
-    }
+    pub struct StatusPong(pub i64);
 
     pub mod response {
         use crate::types::Chat;
         use protocol_derive::Json;
         use uuid::Uuid;
 
+        #[serde_with::skip_serializing_none]
         #[derive(Json, Clone, Debug, serde::Serialize, serde::Deserialize)]
         pub struct Response {
             pub version: Version,
@@ -30,6 +29,7 @@ pub mod clientbound {
             pub protocol: i32,
         }
 
+        #[serde_with::skip_serializing_none]
         #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
         pub struct Players {
             pub max: i32,
@@ -54,7 +54,5 @@ pub mod serverbound {
 
     #[packet(id = 0x01)]
     #[derive(Debug)]
-    pub struct StatusPing {
-        payload: i64,
-    }
+    pub struct StatusPing(pub i64);
 }

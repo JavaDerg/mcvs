@@ -38,7 +38,7 @@ pub async fn handle_client(stream: TcpStream) {
 
     let mut buf = BytesMut::with_capacity(1024);
     let mut clen = None;
-    loop {
+    'read_loop: loop {
         debug!("waiting for read or join");
         let read = tokio::select! {
             read = read.read_buf(&mut buf) => match read {
@@ -60,7 +60,7 @@ pub async fn handle_client(stream: TcpStream) {
                     let len_bytes = &(buf.chunk())[..5.min(buf.len())];
                     let len = match VarInt::decode(len_bytes) {
                         Ok(len) => *len as usize + len.size_hint().unwrap(),
-                        Err(DecodeError::ToLittleData) => continue,
+                        Err(DecodeError::ToLittleData) => break,
                         Err(_) => unreachable!(),
                     };
                     clen = Some(len);
@@ -79,11 +79,7 @@ pub async fn handle_client(stream: TcpStream) {
                 }
                 clen = None;
             } else {
-                break;
-            }
-
-            if buf.is_empty() {
-                break;
+                continue 'read_loop; // we break out of the processing loop as we have no complete packets left
             }
         }
     }
