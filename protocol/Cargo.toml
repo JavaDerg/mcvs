@@ -10,6 +10,7 @@ lazy_static = "1.4.0"
 protocol_derive = { path = "../protocol_derive" }
 tracing = "0.1.26"
 tracing-futures = "0.2.5"
+hematite-nbt = "0.5.2"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_with = "1.9.4"
 simd-json = { version = "0.4.7", features = ["allow-non-simd"] }

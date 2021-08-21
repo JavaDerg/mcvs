@@ -1,6 +1,7 @@
 #![deny(unsafe_code)]
 
 pub mod codec;
+pub mod iob;
 pub mod packets;
 pub mod types;
 

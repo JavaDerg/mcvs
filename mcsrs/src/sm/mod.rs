@@ -145,8 +145,8 @@ impl StateMachine {
     }
 
     fn login0(&mut self, packet: Bytes) -> Result<(), DecodeError> {
-        use protocol::packets::login::{clientbound::LoginSuccess, serverbound::LoginStart};
-        use protocol::types::VarInt;
+        use packets::login::{clientbound::LoginSuccess, serverbound::LoginStart};
+        use packets::play::JoinGame;
 
         let LoginStart(player) = receive!(packet => LoginStart);
         info!("{} joined the game", &player.0);
@@ -154,6 +154,8 @@ impl StateMachine {
             self <- LoginSuccess {
                 username: player,
                 uuid: Uuid::nil(),
+            };
+            <- JoinGame {
             }
         );
 

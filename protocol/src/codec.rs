@@ -14,6 +14,7 @@ pub enum DecodeError {
 pub enum EncodeError {
     InputToLong,
     JsonError(simd_json::Error),
+    NbtError(nbt::Error),
 }
 
 pub trait Packet: Transcodeable {
