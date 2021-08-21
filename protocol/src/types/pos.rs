@@ -10,8 +10,8 @@ pub struct Position {
 impl Transcodeable for Position {
     fn encode<B: BufMut>(&self, buf: B) -> Result<(), EncodeError> {
         let x = self.x as u64;
-        let y = self.x as u64;
-        let z = self.x as u64;
+        let y = self.y as u64;
+        let z = self.z as u64;
         let combo = ((x & 0x3FFFFFF) << 38) | ((z & 0x3FFFFFF) << 12) | (y & 0xFFF);
         (combo as i64).encode(buf)
     }
